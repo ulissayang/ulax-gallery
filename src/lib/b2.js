@@ -81,25 +81,33 @@ export async function loadImageBlob(key, storageConfigId = null) {
   return URL.createObjectURL(blob)
 }
 
-// ─── Get cached stream URL ────────────────────────────────────
+// ─── Get cached signed URL (persistent, tidak hilang saat refresh) ──
 export async function getCachedStreamUrl(key, storageConfigId = null) {
+  if (!key) throw new Error('Key tidak boleh kosong')
+
   const cacheKey = `b2_${storageConfigId || 'active'}_${btoa(encodeURIComponent(key)).slice(0, 24)}`
   const cached = sessionStorage.getItem(cacheKey)
   if (cached) {
-    const { url, exp } = JSON.parse(cached)
-    if (Date.now() < exp) return url
+    try {
+      const { url, exp } = JSON.parse(cached)
+      // Masih valid (belum expired)
+      if (Date.now() < exp) return url
+    } catch {}
   }
 
+  // Minta signed URL dari Edge Function (berlaku 1 jam)
   const { downloadUrl } = await callEdge({
     action: 'download',
     key,
     storageConfigId,
   })
 
+  // Cache 50 menit (signed URL B2 berlaku 1 jam)
   sessionStorage.setItem(cacheKey, JSON.stringify({
     url: downloadUrl,
-    exp: Date.now() + 45 * 60 * 1000,
+    exp: Date.now() + 50 * 60 * 1000,
   }))
+
   return downloadUrl
 }
 

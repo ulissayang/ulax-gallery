@@ -30,10 +30,7 @@ export default function MediaLightbox({ items, initialIndex, onClose, onDelete, 
     return () => {}
   }, [item?.id])
 
-  // Cleanup saat unmount
-  useEffect(() => {
-    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl) }
-  }, [])
+
 
   // Keyboard navigation
   useEffect(() => {
@@ -63,10 +60,11 @@ export default function MediaLightbox({ items, initialIndex, onClose, onDelete, 
   }
 
   const handleDownload = () => {
-    if (!blobUrl) return
+    if (!url) return
     const a = document.createElement('a')
-    a.href = blobUrl
+    a.href = url
     a.download = item.file_name
+    a.target = '_blank'
     a.click()
   }
 
@@ -95,7 +93,7 @@ export default function MediaLightbox({ items, initialIndex, onClose, onDelete, 
           <button onClick={() => setShowInfo(!showInfo)} className={`btn-ghost p-2 rounded-lg ${showInfo ? 'border-gold-500/40' : ''}`}>
             <Info size={16} />
           </button>
-          <button onClick={handleDownload} disabled={!blobUrl} className="btn-ghost p-2 rounded-lg" title="Download">
+          <button onClick={handleDownload} disabled={!url} className="btn-ghost p-2 rounded-lg" title="Download">
             <Download size={16} />
           </button>
           <button onClick={() => onEdit(item)} className="btn-ghost p-2 rounded-lg">

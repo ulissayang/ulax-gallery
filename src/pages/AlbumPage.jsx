@@ -9,7 +9,7 @@ import UploadModal from '../components/UploadModal'
 import MediaLightbox from '../components/MediaLightbox'
 import useGalleryStore from '../store/galleryStore'
 import { showConfirm } from '../components/Alert'
-import { formatFileSize, isVideo, loadImageBlob } from '../lib/mega'
+import { formatFileSize, isVideo, getCachedStreamUrl } from '../lib/mega'
 import { formatDistanceToNow } from '../lib/dateUtils'
 import { supabase } from '../lib/supabase'
 
@@ -267,14 +267,13 @@ function MediaGridItem({ item, index, onOpen, onEdit, onDelete }) {
 
   useEffect(() => {
     if (video) { setImgLoading(false); return }
-    let blobUrl = null
 
-    loadImageBlob(item.mega_node_id, item.storage_config_id || null)
-      .then(url => { blobUrl = url; setImgUrl(url) })
+    // Pakai signed URL langsung sebagai src img (tidak perlu blob)
+    // CORS sudah OK karena kita di HTTPS (Cloudflare Pages)
+    getCachedStreamUrl(item.mega_node_id, item.storage_config_id || null)
+      .then(url => setImgUrl(url))
       .catch(() => setImgError(true))
       .finally(() => setImgLoading(false))
-
-    return () => { if (blobUrl) URL.revokeObjectURL(blobUrl) }
   }, [item.mega_node_id])
 
   return (
