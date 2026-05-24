@@ -1,0 +1,14 @@
+# Cloudflare Pages Configuration
+# Settings ini dimasukkan di Cloudflare Pages Dashboard
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+# Environment Variables yang perlu diset di Cloudflare Pages Dashboard:
+# VITE_SUPABASE_URL = https://xxxx.supabase.co
+# VITE_SUPABASE_ANON_KEY = eyJhbGciOi...
