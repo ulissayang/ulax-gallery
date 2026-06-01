@@ -13,7 +13,7 @@ const useGalleryStore = create((set, get) => ({
     set({ loading: true })
     const { data, error } = await supabase
       .from('albums')
-      .select('*, media_items!media_items_album_id_fkey(count), is_locked, lock_hint, lock_type, lock_hash')
+      .select('*, media_items!media_items_album_id_fkey(count)')
       .order('created_at', { ascending: false })
     if (error) throw error
     set({ albums: data || [], loading: false })
